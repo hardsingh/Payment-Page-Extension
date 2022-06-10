@@ -16,23 +16,22 @@ function payment_page_success_hook($information, $pg_data){
 		'post_date' => current_time( 'Y-m-d H:i:s' ),
 		'post_type' => 'pp_payments',
 		'meta_input' => array( 
-      'transaction_id'=> $transaction_id,
-      'created'=> $pg_data_array['created'],
-      'livemode'=> $pg_data_array['livemode'],
-      'currency'=> $pg_data_array['currency'],
-      'status'=> $pg_data_array['status'],
-      'order_data' => $order_data,
-      'pg_data'=>$pg_data_array['charges']
-    )
+			'transaction_id'=> $transaction_id,
+			'created'=> $pg_data_array['created'],
+			'livemode'=> $pg_data_array['livemode'],
+			'currency'=> $pg_data_array['currency'],
+			'status'=> $pg_data_array['status'],
+			'order_data' => $order_data,
+			'pg_data'=>$pg_data_array['charges']
+		)
 	);
 	$order_id = wp_insert_post( $new_order );
 	if(!is_wp_error($order_id)){
 		$new_title = $new_order['post_title'].'-'.$order_id;
 		$order_updated = wp_update_post( array('ID'=>$order_id, 'post_title'=>$new_title) );
-    /*
-    *you can also trigger any function here.
-    *
-    */
+    		/*
+	    	*you can also trigger any function here.
+	    	*/
 	}
 
 }
@@ -42,21 +41,21 @@ function payment_orders_backend_pages(){
 	$parent_slug = 'payment-page';
 	$smenu_slug = 'edit.php?post_type=pp_payments';
 	add_submenu_page(
-        $parent_slug,
-        __( 'Payments', 'textdomain' ),
-        __( 'Payments', 'textdomain' ),
-        'manage_options',
-        $smenu_slug
-    );
+		$parent_slug,
+		__( 'Payments', 'textdomain' ),
+		__( 'Payments', 'textdomain' ),
+		'manage_options',
+		$smenu_slug
+    	);
 	add_submenu_page(
-        $parent_slug,
-        __( 'PP Customers', 'textdomain' ),
-        __( 'PP Customers', 'textdomain' ),
-        'manage_options',
-        'pp_customers',
-        'pp_customer_page_callback',
+		$parent_slug,
+		__( 'PP Customers', 'textdomain' ),
+		__( 'PP Customers', 'textdomain' ),
+		'manage_options',
+		'pp_customers',
+		'pp_customer_page_callback',
 		30
-    );
+    	);
 }
 
 function pp_customer_page_callback(){
@@ -108,9 +107,9 @@ class ppExtension {
      * Hook into the appropriate actions when the class is constructed.
      */
     public function __construct() {
-		add_action( "init", array( $this, "register_order_post_type" ) );
+	add_action( "init", array( $this, "register_order_post_type" ) );
         add_action( 'add_meta_boxes', array( $this, 'add_meta_box' ) );
-        add_action( 'save_post',      array( $this, 'save_order'         ) );
+	add_action( 'save_post',      array( $this, 'save_order' ) );
     }
  
 	public function register_order_post_type(){
@@ -276,7 +275,7 @@ class ppExtension {
 		$output .= '<h3>Transaction Details:-</h3><div class="transaction_details">
 			<span>Transaction ID: <strong>'.$transaction_id.'</strong></span>
 			<span>Currency: <strong>'.$currency.'</strong></span>
-			<span>Created: <strong>'.$created.'</strong></span>
+			<span>Created: <strong>'.date('d-m-Y H:i', $created).'</strong></span>
 			<span>Status: <strong>'.$status.'</strong></span>
 			<span>Is Live: <strong>'.( ($livemode == 1) ? 'YES' : 'NO' ).'</strong></span>
 		</div>';
@@ -305,17 +304,15 @@ class ppExtension {
 
 		$pg_data = get_post_meta( $post->ID, 'pg_data', true );
 		//error_log(print_r($pg_data, true));
-		$payment_method_details = $pg_data['data'][0]['payment_method_details']; //json_decode($pg_data)->data[0]->payment_method_details;
+		$payment_method_details = $pg_data['data'][0]['payment_method_details'];
 		$payment_method_type = $payment_method_details['type'];
 		$pg_output_data = '<div class="data pg_data"><h3>Payment Method Details</h3>';
 		$pm_details = $payment_method_details[$payment_method_type];
-		//$pg_output_data .= '<pre>'.print_r( $pm_details, true ).'</pre>';
 		
 		$pg_output_data .= '<table class="form-table"><tbody>';
 		$pi = 0;
 		$pbreak_after = 3;
 		foreach( $pm_details as $pmkey=>$pmval ){
-			//$pg_output_data .= print_r($pmval, true).', type='.gettype($pmval);
 			if(!is_array($pmval) && !empty($pmval) && $pmkey !== 'fingerprint'){
 				if($pi%$pbreak_after == 0){
 					$pg_output_data .= '<tr>';
